@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — ITF Манас</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --red: #CC0000; --yellow: #FFD700; --black: #0A0A0A;
+            --dark: #111111; --dark2: #1A1A1A; --gray: #222; --text-light: #CCCCCC;
+        }
+        body { font-family: 'Roboto', sans-serif; background: var(--black); color: #fff; }
+        .topbar {
+            background: #111; border-bottom: 2px solid var(--red);
+            padding: 16px 40px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar-logo { font-family: 'Oswald', sans-serif; font-size: 1.4rem; color: var(--yellow); letter-spacing: 2px; }
+        .topbar-right { display: flex; gap: 12px; align-items: center; }
+        .btn-back, .btn-logout {
+            font-family: 'Oswald', sans-serif; font-size: 0.85rem; letter-spacing: 1px;
+            text-transform: uppercase; padding: 10px 20px; text-decoration: none;
+            border: none; cursor: pointer; transition: background 0.2s;
+        }
+        .btn-back { background: var(--gray); color: var(--text-light); }
+        .btn-back:hover { background: #333; }
+        .btn-logout { background: var(--red); color: #fff; }
+        .btn-logout:hover { background: #aa0000; }
+
+        .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+
+        .success-banner {
+            background: rgba(0,180,0,0.12); border: 1px solid rgba(0,200,0,0.3);
+            border-left: 3px solid #00cc44; color: #55ff88;
+            padding: 14px 20px; margin-bottom: 32px;
+            font-family: 'Oswald', sans-serif; letter-spacing: 1px;
+        }
+
+        .section-card { background: var(--dark2); border: 1px solid rgba(204,0,0,0.2); border-top: 3px solid var(--red); padding: 36px; margin-bottom: 32px; }
+        .section-card h2 { font-family: 'Oswald', sans-serif; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 28px; color: var(--yellow); }
+
+        /* SCHEDULE TABLE */
+        .schedule-table { width: 100%; border-collapse: collapse; }
+        .schedule-table th { text-align: left; font-family: 'Oswald', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #777; padding: 0 0 12px 0; border-bottom: 1px solid #333; }
+        .schedule-table td { padding: 14px 0; border-bottom: 1px solid #1e1e1e; vertical-align: middle; }
+        .schedule-table td:first-child { font-family: 'Oswald', sans-serif; font-size: 0.95rem; color: var(--text-light); width: 180px; }
+        .sch-input {
+            background: #111; border: 1px solid #333; color: #fff;
+            padding: 10px 14px; font-family: 'Roboto', sans-serif; font-size: 0.95rem;
+            outline: none; transition: border-color 0.2s; width: 100%;
+        }
+        .sch-input:focus { border-color: var(--red); }
+        .td-days { padding-right: 16px; width: 200px; }
+        .td-time { padding-right: 10px; width: 110px; }
+        .td-sep { color: #555; text-align: center; width: 20px; font-size: 1.2rem; }
+
+        .btn-save {
+            margin-top: 24px; background: var(--red); color: #fff; border: none; cursor: pointer;
+            font-family: 'Oswald', sans-serif; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase;
+            padding: 14px 40px;
+            clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+            transition: background 0.2s;
+        }
+        .btn-save:hover { background: #aa0000; }
+
+        /* RULES */
+        .rules-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+        .rule-row { display: flex; align-items: center; gap: 14px; background: var(--gray); padding: 14px 18px; }
+        .rule-badge { font-size: 1.1rem; flex-shrink: 0; }
+        .rule-text { flex: 1; color: var(--text-light); font-size: 0.95rem; }
+        .btn-del {
+            background: rgba(200,0,0,0.2); border: 1px solid rgba(200,0,0,0.4); color: #ff6666;
+            padding: 7px 14px; font-family: 'Oswald', sans-serif; font-size: 0.8rem;
+            letter-spacing: 1px; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+        }
+        .btn-del:hover { background: rgba(200,0,0,0.4); }
+
+        .add-rule-form { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+        .add-rule-form input[type="text"] {
+            flex: 1; min-width: 200px; background: #111; border: 1px solid #333; color: #fff;
+            padding: 12px 16px; font-family: 'Roboto', sans-serif; font-size: 0.95rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .add-rule-form input[type="text"]:focus { border-color: var(--red); }
+        .add-rule-form select {
+            background: #111; border: 1px solid #333; color: #fff;
+            padding: 12px 14px; font-family: 'Roboto', sans-serif; font-size: 0.95rem;
+            outline: none; cursor: pointer;
+        }
+        .btn-add {
+            background: var(--yellow); color: #000; border: none; cursor: pointer;
+            font-family: 'Oswald', sans-serif; font-size: 0.95rem; letter-spacing: 1px;
+            padding: 12px 28px; text-transform: uppercase; transition: background 0.2s; flex-shrink: 0;
+        }
+        .btn-add:hover { background: #e6c200; }
+
+        @media (max-width: 600px) {
+            .topbar { padding: 14px 16px; }
+            .container { padding: 24px 14px; }
+            .section-card { padding: 24px 16px; }
+            .schedule-table td:first-child { width: 120px; font-size: 0.85rem; }
+            .td-days { width: 130px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-logo">⚡ ITF МАНАС — Панель управления</div>
+    <div class="topbar-right">
+        <a href="/" class="btn-back">← На сайт</a>
+        <a href="/admin-logout/" class="btn-logout">Выйти</a>
+    </div>
+</div>
+
+<div class="container">
+
+    {% if success %}
+    <div class="success-banner">✅ {{ success }}</div>
+    {% endif %}
+
+    <!-- РАСПИСАНИЕ -->
+    <div class="section-card">
+        <h2>📅 Расписание тренировок</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_schedule">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Группа</th>
+                        <th>Дни недели</th>
+                        <th colspan="3">Время</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in schedules %}
+                    <tr>
+                        <td>{{ s.get_group_display }}</td>
+                        <td class="td-days">
+                            <input class="sch-input" type="text" name="days_{{ s.id }}" value="{{ s.days }}" placeholder="Пн-Ср-Пт">
+                        </td>
+                        <td class="td-time">
+                            <input class="sch-input" type="text" name="start_{{ s.id }}" value="{{ s.time_start }}" placeholder="17:00">
+                        </td>
+                        <td class="td-sep">—</td>
+                        <td class="td-time">
+                            <input class="sch-input" type="text" name="end_{{ s.id }}" value="{{ s.time_end }}" placeholder="18:30">
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="color:#555;padding:20px 0;">Нет данных. Добавьте расписание через Django shell или миграцию.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn-save">💾 Сохранить расписание</button>
+        </form>
+    </div>
+
+    <!-- ПРАВИЛА -->
+    <div class="section-card">
+        <h2>📋 Правила зала</h2>
+
+        <div class="rules-list">
+            {% for rule in rules %}
+            <div class="rule-row">
+                <span class="rule-badge">{% if rule.rule_type == 'yes' %}✅{% else %}❌{% endif %}</span>
+                <span class="rule-text">{{ rule.text }}</span>
+                <form method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_rule">
+                    <input type="hidden" name="rule_id" value="{{ rule.id }}">
+                    <button type="submit" class="btn-del">Удалить</button>
+                </form>
+            </div>
+            {% empty %}
+            <p style="color:#555;">Правил пока нет.</p>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="add-rule-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_rule">
+            <input type="text" name="rule_text" placeholder="Текст нового правила..." required>
+            <select name="rule_type">
+                <option value="yes">✅ Обязательно</option>
+                <option value="no">❌ Запрещено</option>
+            </select>
+            <button type="submit" class="btn-add">+ Добавить</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>
